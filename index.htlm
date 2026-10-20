@@ -1,0 +1,738 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTXF - منصة التحديد الكمي الذكية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0b0e14',
+                            card: '#151922',
+                            accent: '#00f2fe',
+                            green: '#00e676',
+                            red: '#ff5252',
+                            gold: '#ffd700'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0e14;
+            color: #f3f4f6;
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+        }
+        .glow-accent {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+        .glow-button {
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+        }
+        .glass-card {
+            background: rgba(21, 25, 34, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0e14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="pb-20 md:pb-0">
+
+    <!-- Auth Container -->
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark">
+        <div class="w-full max-w-md p-8 rounded-2xl glass-card border border-gray-800 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl"></div>
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">RTXF</h1>
+                <p class="text-xs text-gray-400 mt-2">منصة التحديد الكمي وتداول الذكاء الاصطناعي 2022</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex bg-gray-900/60 p-1 rounded-xl mb-6 border border-gray-800">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-cyan-500 text-black transition">تسجيل الدخول</button>
+                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 transition">حساب جديد</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="handleAuth(event, 'login')" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اسم المستخدم / البريد الإلكتروني</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute right-3 top-3 w-5 h-5 text-gray-500"></i>
+                        <input type="text" id="login-username" required class="w-full bg-gray-900 border border-gray-800 rounded-xl pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:border-cyan-400 text-white" placeholder="أدخل اسم المستخدم">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute right-3 top-3 w-5 h-5 text-gray-500"></i>
+                        <input type="password" id="login-password" required class="w-full bg-gray-900 border border-gray-800 rounded-xl pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:border-cyan-400 text-white" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-400 text-black font-bold rounded-xl hover:opacity-90 transition glow-accent">دخول المنصة</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اسم المستخدم</label>
+                    <input type="text" id="reg-username" required class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-400 text-white" placeholder="اختر اسم مستخدم">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
+                    <input type="password" id="reg-password" required class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-400 text-white" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">رمز الدعوة (إجباري)</label>
+                    <div class="relative">
+                        <i data-lucide="gift" class="absolute right-3 top-3 w-5 h-5 text-cyan-400"></i>
+                        <input type="text" id="reg-invite" required class="w-full bg-gray-900 border border-cyan-500/40 rounded-xl pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:border-cyan-400 text-white font-mono" placeholder="أدخل رمز الدعوة">
+                    </div>
+                    <p class="text-[10px] text-yellow-400/80 mt-1">* التسجيل يتطلب رمز دعوة مفعل من قبل صديق أو وكيل.</p>
+                </div>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-400 to-cyan-500 text-black font-bold rounded-xl hover:opacity-90 transition glow-accent">إنشاء حساب وتأكيد</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col max-w-lg mx-auto bg-brand-dark border-x border-gray-800/50 shadow-2xl">
+        
+        <!-- Top Bar -->
+        <header class="p-4 glass-card sticky top-0 z-40 flex items-center justify-between border-b border-gray-800">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-400 to-emerald-400 flex items-center justify-center font-bold text-black text-sm" id="user-avatar">
+                    U
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-white flex items-center gap-1">
+                        <span id="user-display-name">مستخدم</span>
+                        <span id="user-vip-badge" class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 text-[10px] px-1.5 py-0.5 rounded font-mono">VIP0</span>
+                    </h2>
+                    <p class="text-[10px] text-gray-400">RTXF Quantum AI Bot v2.4</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="logout()" class="p-2 bg-gray-800/80 rounded-xl text-gray-400 hover:text-red-400 transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Body -->
+        <main class="flex-1 p-4 overflow-y-auto space-y-5">
+            
+            <!-- SECTION 1: HOME -->
+            <div id="sec-home" class="space-y-4">
+                <!-- Banner / Ticker -->
+                <div class="p-3 bg-cyan-950/30 border border-cyan-500/20 rounded-xl flex items-center gap-3">
+                    <i data-lucide="volume-2" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+                    <marquee class="text-xs text-cyan-200">
+                        مرحباً بكم في منصة RTXF للتحديد الكمي الذكي • أرباح سريعة وسحب مضمون على شبكة TRC20 • انضم إلى الباقات الممتازة وضاعف دخلك اليومي!
+                    </marquee>
+                </div>
+
+                <!-- Wallet Card -->
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-gray-900 via-brand-card to-gray-900 border border-gray-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs text-gray-400 block mb-1">الرصيد الكلي (USDT)</span>
+                            <h3 class="text-3xl font-extrabold text-white font-mono" id="val-balance">0.00</h3>
+                        </div>
+                        <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> نشط
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-800/80 text-xs">
+                        <div>
+                            <span class="text-gray-400">أرباح اليوم:</span>
+                            <span class="text-emerald-400 font-bold font-mono mr-1" id="val-today-earnings">+0.00 $</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">إجمالي الأرباح:</span>
+                            <span class="text-cyan-400 font-bold font-mono mr-1" id="val-total-earnings">0.00 $</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="openModal('modal-deposit')" class="py-2.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-emerald-500/30 transition">
+                            <i data-lucide="arrow-down-left" class="w-4 h-4"></i> إيداع
+                        </button>
+                        <button onclick="openModal('modal-withdraw')" class="py-2.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-gray-700 transition">
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i> سحب
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Real-time Chart Simulation -->
+                <div class="p-4 glass-card rounded-2xl border border-gray-800">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="trending-up" class="w-4 h-4 text-cyan-400"></i>
+                            <span class="text-xs font-bold">مؤشر السوق الكمي (BTC/USDT)</span>
+                        </div>
+                        <span class="text-xs text-emerald-400 font-mono font-bold" id="btc-price">$67,420.50</span>
+                    </div>
+                    <div class="h-36 w-full">
+                        <canvas id="quantChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Navigation Quick Links -->
+                <div class="grid grid-cols-4 gap-3 text-center">
+                    <button onclick="switchTab('quant')" class="p-3 glass-card rounded-xl flex flex-col items-center gap-1 hover:border-cyan-500/50 transition">
+                        <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-[11px] text-gray-300">التحديد</span>
+                    </button>
+                    <button onclick="switchTab('vip')" class="p-3 glass-card rounded-xl flex flex-col items-center gap-1 hover:border-cyan-500/50 transition">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-yellow-400"></i>
+                        <span class="text-[11px] text-gray-300">الباقات</span>
+                    </button>
+                    <button onclick="switchTab('team')" class="p-3 glass-card rounded-xl flex flex-col items-center gap-1 hover:border-cyan-500/50 transition">
+                        <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i>
+                        <span class="text-[11px] text-gray-300">الفريق</span>
+                    </button>
+                    <button onclick="openModal('modal-help')" class="p-3 glass-card rounded-xl flex flex-col items-center gap-1 hover:border-cyan-500/50 transition">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-purple-400"></i>
+                        <span class="text-[11px] text-gray-300">الدعم</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 2: QUANTIFICATION (TASKS) -->
+            <div id="sec-quant" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-white">مركز التحديد الكمي</h2>
+                    <p class="text-xs text-gray-400">مهمة واحدة فقط كل 24 ساعة للحصول على الأرباح</p>
+                </div>
+
+                <!-- Main Task Trigger Box -->
+                <div class="p-6 glass-card rounded-2xl border border-gray-800 text-center relative overflow-hidden">
+                    <div class="mb-4 inline-block p-4 rounded-full bg-cyan-500/10 border border-cyan-500/30 animate-pulse">
+                        <i data-lucide="activity" class="w-12 h-12 text-cyan-400"></i>
+                    </div>
+
+                    <div id="quant-active-box">
+                        <h3 class="text-sm font-semibold text-gray-300 mb-1">الأنظمة الكمية الذكية جاهزة</h3>
+                        <p class="text-xs text-gray-400 mb-6">انقر لبدء عملية التداول التلقائي وجمع الأرباح</p>
+
+                        <button id="btn-start-quant" onclick="executeQuantification()" class="w-full py-4 bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-500 text-black font-extrabold rounded-2xl text-base shadow-lg glow-button hover:scale-[1.02] active:scale-95 transition transform">
+                            بدء التحديد الكمي الان
+                        </button>
+                    </div>
+
+                    <!-- Countdown Box (When locked) -->
+                    <div id="quant-cooldown-box" class="hidden space-y-3">
+                        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl inline-block">
+                            <span class="text-xs text-red-400 font-semibold block">تم تنفيذ المهمة اليومية بنجاح!</span>
+                        </div>
+                        <p class="text-xs text-gray-400">تفتح المهمة القادمة بعد:</p>
+                        <div class="text-2xl font-mono font-bold text-cyan-400 tracking-wider" id="timer-display">23:59:59</div>
+                    </div>
+                </div>
+
+                <!-- Real-time Execution Terminal simulation -->
+                <div id="quant-terminal" class="hidden p-4 bg-black/80 rounded-xl border border-gray-800 font-mono text-xs space-y-2 text-left dir-ltr">
+                    <div class="text-cyan-400">[SYSTEM] Connecting to Binance, KuCoin, OKX APIs...</div>
+                    <div class="text-gray-400">[QUANT] Analyzing spread arbitrage opportunities...</div>
+                    <div class="text-emerald-400">[SUCCESS] Buy BTC @ $67,410 | Sell BTC @ $67,485</div>
+                    <div class="text-yellow-400">[PROFIT] Profit calculated and added to account!</div>
+                </div>
+
+                <!-- VIP Level Info -->
+                <div class="p-4 glass-card rounded-xl border border-gray-800 flex justify-between items-center text-xs">
+                    <div>
+                        <span class="text-gray-400 block">مستواك الحالي:</span>
+                        <span class="font-bold text-yellow-400 text-sm" id="quant-vip-level">VIP0</span>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-gray-400 block">ربح المهمة:</span>
+                        <span class="font-bold text-emerald-400 text-sm" id="quant-vip-profit">0.00 USDT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: VIP LEVELS -->
+            <div id="sec-vip" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-white">باقات الاستثمار VIP</h2>
+                    <p class="text-xs text-gray-400">ترقية المستويات تمنحك عائدات يومية أعلى</p>
+                </div>
+
+                <div class="space-y-3" id="vip-list-container">
+                    <!-- VIP Cards dynamically loaded or static template -->
+                </div>
+            </div>
+
+            <!-- SECTION 4: TEAM / REFERRAL -->
+            <div id="sec-team" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-white">دعوة الأصدقاء و الأرباح</h2>
+                    <p class="text-xs text-gray-400">احصل على عمولات مجزية من تداولات فريقك</p>
+                </div>
+
+                <!-- Referral Box -->
+                <div class="p-5 glass-card rounded-2xl border border-gray-800 space-y-4">
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">رمز الدعوة الخاص بك</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="my-invite-code" readonly class="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-cyan-400 font-mono font-bold text-center" value="RTXF99">
+                            <button onclick="copyToClipboard('my-invite-code')" class="px-4 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold hover:bg-cyan-500/30 transition">نسخ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commission Structure -->
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div class="p-3 glass-card rounded-xl border border-gray-800">
+                        <span class="text-cyan-400 font-bold text-lg block">10%</span>
+                        <span class="text-gray-400">المستوى 1</span>
+                    </div>
+                    <div class="p-3 glass-card rounded-xl border border-gray-800">
+                        <span class="text-emerald-400 font-bold text-lg block">3%</span>
+                        <span class="text-gray-400">المستوى 2</span>
+                    </div>
+                    <div class="p-3 glass-card rounded-xl border border-gray-800">
+                        <span class="text-purple-400 font-bold text-lg block">1%</span>
+                        <span class="text-gray-400">المستوى 3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: PROFILE -->
+            <div id="sec-profile" class="space-y-4 hidden">
+                <div class="p-5 glass-card rounded-2xl border border-gray-800 text-center space-y-2">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg">
+                        U
+                    </div>
+                    <h3 class="font-bold text-white text-base" id="profile-name">اسم المستخدم</h3>
+                    <p class="text-xs text-gray-400">انضم منذ: 2026-10-20</p>
+                </div>
+
+                <div class="glass-card rounded-2xl border border-gray-800 divide-y divide-gray-800/60 text-xs">
+                    <button onclick="openModal('modal-deposit')" class="w-full p-4 flex justify-between items-center text-right hover:bg-gray-800/30 transition">
+                        <span class="flex items-center gap-2"><i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i> شحن الرصيد</span>
+                        <i data-lucide="chevron-left" class="w-4 h-4 text-gray-500"></i>
+                    </button>
+                    <button onclick="openModal('modal-withdraw')" class="w-full p-4 flex justify-between items-center text-right hover:bg-gray-800/30 transition">
+                        <span class="flex items-center gap-2"><i data-lucide="credit-card" class="w-4 h-4 text-cyan-400"></i> سحب الأرباح</span>
+                        <i data-lucide="chevron-left" class="w-4 h-4 text-gray-500"></i>
+                    </button>
+                    <button onclick="openModal('modal-help')" class="w-full p-4 flex justify-between items-center text-right hover:bg-gray-800/30 transition">
+                        <span class="flex items-center gap-2"><i data-lucide="headphones" class="w-4 h-4 text-purple-400"></i> خدمة العملاء 24/7</span>
+                        <i data-lucide="chevron-left" class="w-4 h-4 text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-brand-dark/95 backdrop-blur-md border-t border-gray-800 px-3 py-2 flex justify-around items-center z-40">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-cyan-400 transition">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[10px]">الرئيسية</span>
+            </button>
+            <button onclick="switchTab('quant')" id="nav-quant" class="flex flex-col items-center gap-1 text-gray-400 transition">
+                <i data-lucide="cpu" class="w-5 h-5"></i>
+                <span class="text-[10px]">التحديد</span>
+            </button>
+            <button onclick="switchTab('vip')" id="nav-vip" class="flex flex-col items-center gap-1 text-gray-400 transition">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <span class="text-[10px]">VIP</span>
+            </button>
+            <button onclick="switchTab('team')" id="nav-team" class="flex flex-col items-center gap-1 text-gray-400 transition">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="text-[10px]">الفريق</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-gray-400 transition">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[10px]">حسابي</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- MODAL: DEPOSIT -->
+    <div id="modal-deposit" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="w-full max-w-sm glass-card p-5 rounded-2xl border border-gray-800 space-y-4 relative">
+            <button onclick="closeModal('modal-deposit')" class="absolute top-3 left-3 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h3 class="text-base font-bold text-white text-center">إيداع USDT (TRC20)</h3>
+            
+            <div class="bg-white p-3 rounded-xl w-36 h-36 mx-auto flex items-center justify-center">
+                <!-- Simple Simulated QR Code -->
+                <div class="w-full h-full bg-gray-900 rounded flex items-center justify-center text-white text-[10px] text-center p-2">
+                    QR CODE (TRC20)
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs text-gray-400 block mb-1">عنوان المحفظة (USDT-TRC20)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="deposit-address" readonly class="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-2 py-2 text-[11px] text-cyan-400 font-mono" value="T-RTXF9982374829374982374928">
+                    <button onclick="copyToClipboard('deposit-address')" class="px-3 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold">نسخ</button>
+                </div>
+            </div>
+
+            <form onsubmit="handleDepositSubmit(event)" class="space-y-3 pt-2">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">المبلغ المشحون ($)</label>
+                    <input type="number" id="deposit-amount" min="10" required placeholder="أدخل المبلغ الذي قمت بتحويله" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-emerald-500 text-black font-bold rounded-xl text-xs hover:bg-emerald-400 transition">تأكيد الإيداع</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: WITHDRAW -->
+    <div id="modal-withdraw" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="w-full max-w-sm glass-card p-5 rounded-2xl border border-gray-800 space-y-4 relative">
+            <button onclick="closeModal('modal-withdraw')" class="absolute top-3 left-3 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h3 class="text-base font-bold text-white text-center">سحب الأرباح</h3>
+
+            <form onsubmit="handleWithdrawSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">عنوان محفظتك (USDT TRC20)</label>
+                    <input type="text" required placeholder="T..." class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">مبلغ السحب ($)</label>
+                    <input type="number" id="withdraw-amount" min="5" required placeholder="الحد الأدنى 5 USDT" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-cyan-500 text-black font-bold rounded-xl text-xs hover:bg-cyan-400 transition">طلب السحب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: HELP -->
+    <div id="modal-help" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="w-full max-w-sm glass-card p-5 rounded-2xl border border-gray-800 space-y-4 relative text-center">
+            <button onclick="closeModal('modal-help')" class="absolute top-3 left-3 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <i data-lucide="headphones" class="w-10 h-10 text-cyan-400 mx-auto"></i>
+            <h3 class="text-base font-bold text-white">الدعم الفني المباشر</h3>
+            <p class="text-xs text-gray-400">إذا واجهت أي مشكلة في الشحن أو السحب، تواصل معنا عبر التليجرام الرسمي.</p>
+            <a href="https://t.me" target="_blank" class="block w-full py-2.5 bg-cyan-500 text-black font-bold rounded-xl text-xs hover:bg-cyan-400 transition">تواصل عبر Telegram</a>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // State Management
+        const VIP_LEVELS = [
+            { level: 1, name: 'VIP 1', price: 20, dailyProfit: 2.5, period: '30 يوم' },
+            { level: 2, name: 'VIP 2', price: 60, dailyProfit: 8.0, period: '30 يوم' },
+            { level: 3, name: 'VIP 3', price: 150, dailyProfit: 21.0, period: '30 يوم' },
+            { level: 4, name: 'VIP 4', price: 400, dailyProfit: 60.0, period: '30 يوم' },
+            { level: 5, name: 'VIP 5', price: 1000, dailyProfit: 160.0, period: '30 يوم' },
+        ];
+
+        let state = {
+            user: null,
+            balance: 0.00,
+            vipLevel: 0,
+            todayEarnings: 0.00,
+            totalEarnings: 0.00,
+            lastQuantTime: null
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initChart();
+            loadState();
+            renderVIPList();
+            checkQuantCooldown();
+            setInterval(updateCountdown, 1000);
+        });
+
+        // Local Storage State Loader
+        function loadState() {
+            const saved = localStorage.getItem('rtxf_user_session');
+            if (saved) {
+                state = JSON.parse(saved);
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                updateUI();
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('rtxf_user_session', JSON.stringify(state));
+            updateUI();
+        }
+
+        // Auth Operations
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const regForm = document.getElementById('form-register');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLogin.className = 'flex-1 py-2 text-sm font-semibold rounded-lg bg-cyan-500 text-black transition';
+                tabRegister.className = 'flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 transition';
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabRegister.className = 'flex-1 py-2 text-sm font-semibold rounded-lg bg-cyan-500 text-black transition';
+                tabLogin.className = 'flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 transition';
+            }
+        }
+
+        function handleAuth(e, type) {
+            e.preventDefault();
+            const username = type === 'login' ? document.getElementById('login-username').value : document.getElementById('reg-username').value;
+            
+            state.user = username;
+            if (type === 'register') {
+                state.balance = 0.00; // No free money
+                state.vipLevel = 0;
+            }
+            saveState();
+            
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+        }
+
+        function logout() {
+            localStorage.removeItem('rtxf_user_session');
+            location.reload();
+        }
+
+        // UI Updates
+        function updateUI() {
+            if (!state.user) return;
+
+            document.getElementById('user-display-name').textContent = state.user;
+            document.getElementById('profile-name').textContent = state.user;
+            document.getElementById('user-avatar').textContent = state.user.charAt(0).toUpperCase();
+            
+            document.getElementById('val-balance').textContent = state.balance.toFixed(2);
+            document.getElementById('val-today-earnings').textContent = '+' + state.todayEarnings.toFixed(2) + ' $';
+            document.getElementById('val-total-earnings').textContent = state.totalEarnings.toFixed(2) + ' $';
+
+            const vipBadgeText = 'VIP' + state.vipLevel;
+            document.getElementById('user-vip-badge').textContent = vipBadgeText;
+            document.getElementById('quant-vip-level').textContent = vipBadgeText;
+
+            const currentVipProfit = state.vipLevel > 0 ? VIP_LEVELS[state.vipLevel - 1].dailyProfit : 0;
+            document.getElementById('quant-vip-profit').textContent = currentVipProfit.toFixed(2) + ' USDT';
+        }
+
+        // Section Switcher
+        function switchTab(tabName) {
+            const tabs = ['home', 'quant', 'vip', 'team', 'profile'];
+            tabs.forEach(t => {
+                document.getElementById('sec-' + t).classList.add('hidden');
+                document.getElementById('nav-' + t).className = 'flex flex-col items-center gap-1 text-gray-400 transition';
+            });
+
+            document.getElementById('sec-' + tabName).classList.remove('hidden');
+            document.getElementById('nav-' + tabName).className = 'flex flex-col items-center gap-1 text-cyan-400 transition';
+        }
+
+        // VIP Section Renderer
+        function renderVIPList() {
+            const container = document.getElementById('vip-list-container');
+            container.innerHTML = VIP_LEVELS.map(v => `
+                <div class="p-4 glass-card rounded-xl border border-gray-800 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-yellow-400 text-sm">${v.name}</span>
+                            <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded font-mono">${v.price} USDT</span>
+                        </div>
+                        <p class="text-xs text-emerald-400 font-semibold mt-1">الربح اليومي: +${v.dailyProfit.toFixed(2)} USDT</p>
+                    </div>
+                    <button onclick="unlockVIP(${v.level}, ${v.price})" class="px-4 py-2 ${state.vipLevel >= v.level ? 'bg-gray-800 text-gray-500' : 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-bold'} rounded-xl text-xs transition">
+                        ${state.vipLevel >= v.level ? 'مفتوح' : 'فتح الآن'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function unlockVIP(level, price) {
+            if (state.balance < price) {
+                alert('عذراً، رصيدك غير كافٍ لتفعيل هذه الباقة. يرجى الشحن أولاً.');
+                openModal('modal-deposit');
+                return;
+            }
+            if (confirm(`هل أنت تأكد من رغبتك في تفعيل ${VIP_LEVELS[level-1].name} بسعر ${price} USDT؟`)) {
+                state.balance -= price;
+                state.vipLevel = level;
+                saveState();
+                renderVIPList();
+                alert('تم فتح الباقة بنجاح!');
+            }
+        }
+
+        // Quantification Logic (24h Cooldown)
+        function executeQuantification() {
+            if (state.vipLevel === 0) {
+                alert('لا يمكنك إجراء التحديد الكمي في المستوى المجاني (VIP0). يرجى شراء باقة VIP1 على الأقل.');
+                switchTab('vip');
+                return;
+            }
+
+            const btn = document.getElementById('btn-start-quant');
+            const terminal = document.getElementById('quant-terminal');
+            
+            btn.disabled = true;
+            btn.textContent = 'جاري التحديد والاربتراج...';
+            terminal.classList.remove('hidden');
+
+            setTimeout(() => {
+                const profit = VIP_LEVELS[state.vipLevel - 1].dailyProfit;
+                state.balance += profit;
+                state.todayEarnings = profit;
+                state.totalEarnings += profit;
+                state.lastQuantTime = Date.now();
+                saveState();
+
+                btn.disabled = false;
+                btn.textContent = 'بدء التحديد الكمي الان';
+                terminal.classList.add('hidden');
+
+                checkQuantCooldown();
+                alert(`مبروك! تمت عملية التحديد الكمي وحصلت على +${profit} USDT`);
+            }, 3000);
+        }
+
+        function checkQuantCooldown() {
+            if (!state.lastQuantTime) return;
+
+            const now = Date.now();
+            const elapsed = now - state.lastQuantTime;
+            const cooldown = 24 * 60 * 60 * 1000; // 24 Hours
+
+            const activeBox = document.getElementById('quant-active-box');
+            const cooldownBox = document.getElementById('quant-cooldown-box');
+
+            if (elapsed < cooldown) {
+                activeBox.classList.add('hidden');
+                cooldownBox.classList.remove('hidden');
+            } else {
+                activeBox.classList.remove('hidden');
+                cooldownBox.classList.add('hidden');
+            }
+        }
+
+        function updateCountdown() {
+            if (!state.lastQuantTime) return;
+
+            const now = Date.now();
+            const elapsed = now - state.lastQuantTime;
+            const cooldown = 24 * 60 * 60 * 1000;
+            const remaining = cooldown - elapsed;
+
+            if (remaining <= 0) {
+                checkQuantCooldown();
+                return;
+            }
+
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+            document.getElementById('timer-display').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Deposit & Withdraw Handlers
+        function handleDepositSubmit(e) {
+            e.preventDefault();
+            const amt = parseFloat(document.getElementById('deposit-amount').value);
+            if (amt > 0) {
+                state.balance += amt;
+                saveState();
+                closeModal('modal-deposit');
+                alert(`تم تأكيد إيداع ${amt} USDT بنجاح وحسابك محدث الآن!`);
+            }
+        }
+
+        function handleWithdrawSubmit(e) {
+            e.preventDefault();
+            const amt = parseFloat(document.getElementById('withdraw-amount').value);
+            if (amt > state.balance) {
+                alert('رصيدك المتاح غير كافٍ!');
+                return;
+            }
+            state.balance -= amt;
+            saveState();
+            closeModal('modal-withdraw');
+            alert('تم تقديم طلب السحب بنجاح وهو قيد المعالجة.');
+        }
+
+        // Utility Functions
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function copyToClipboard(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            document.execCommand('copy');
+            alert('تم النسخ إلى الحافظة!');
+        }
+
+        // Chart Initialization
+        function initChart() {
+            const ctx = document.getElementById('quantChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
+                    datasets: [{
+                        data: [66800, 67100, 66950, 67300, 67200, 67420],
+                        borderColor: '#00f2fe',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+```
