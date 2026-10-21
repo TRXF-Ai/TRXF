@@ -1,1044 +1,727 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RTXF - منصة التحديد الكمي والتداول الذكي</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTXF QUANT - AI Quantitative V2.4</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            dark: '#0a0d14',
-                            card: '#121824',
-                            border: '#1e293b',
-                            gold: '#f59e0b',
-                            goldGlow: '#d97706',
-                            cyan: '#06b6d4',
-                            cyanGlow: '#0891b2'
-                        }
+                        darkBg: '#0b0f19',
+                        cardBg: '#131b2e',
+                        accentGold: '#f3ba2f',
+                        accentCyan: '#00e5ff',
+                        accentGreen: '#00c087',
+                        accentRed: '#ff3b30'
                     }
                 }
             }
         }
     </script>
-
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #06080d;
-            color: #f8fafc;
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
-
-        .glass-panel {
-            background: rgba(18, 24, 36, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .gold-border-card {
+            border: 1px solid rgba(243, 186, 47, 0.3);
+            background: linear-gradient(145deg, rgba(19, 27, 46, 0.9), rgba(15, 21, 37, 0.95));
         }
-
-        .glass-panel-gold {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(18, 24, 36, 0.8) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        .nav-active {
+            color: #f3ba2f;
         }
-
-        .glass-panel-cyan {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(18, 24, 36, 0.8) 100%);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-
-        .gold-text-gradient {
-            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .cyan-text-gradient {
-            background: linear-gradient(135deg, #a5f3fc 0%, #06b6d4 50%, #0e7490 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
-        }
-
-        .btn-cyan {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #06080d;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-
-        /* Ticker Animation */
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .animate-ticker {
-            display: flex;
-            width: 200%;
-            animation: ticker 25s linear infinite;
-        }
-
-        /* Pulse Animations */
-        .pulse-cyan {
-            box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
-            animation: pulseCyan 2s infinite;
-        }
-        @keyframes pulseCyan {
-            0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(6, 182, 212, 0); }
-            100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="pb-24 pt-2 min-h-screen flex flex-col justify-between">
+<body class="pb-20 max-w-md mx-auto min-h-screen relative border-x border-gray-800 shadow-2xl">
 
-    <!-- Top Header Navigation -->
-    <header id="mainHeader" class="hidden sticky top-0 z-40 px-4 py-3 bg-[#06080d]/90 backdrop-blur-md border-b border-gray-800 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-cyan-500 flex items-center justify-center font-black text-black text-xl shadow-lg">
+    <!-- Auth View (Login / Register) -->
+    <div id="authView" class="fixed inset-0 bg-[#0b0f19] z-50 flex flex-col justify-center px-6 max-w-md mx-auto">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-gradient-to-tr from-accentGold to-accentCyan rounded-2xl mx-auto flex items-center justify-center text-darkBg font-black text-3xl shadow-lg shadow-accentGold/20 mb-3">
                 R
             </div>
-            <div>
-                <h1 class="font-extrabold tracking-wider text-lg gold-text-gradient leading-none">RTXF QUANT</h1>
-                <span class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase">AI Quantitative v2.4</span>
-            </div>
+            <h1 class="text-2xl font-bold text-accentGold">RTXF QUANT</h1>
+            <p class="text-xs text-gray-400 mt-1">AI QUANTITATIVE V2.4</p>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="switchTab('recharge')" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-500/20">
-                <i class="fa-solid fa-wallet"></i> إيداع
-            </button>
-            <button onclick="logout()" class="w-8 h-8 rounded-lg bg-gray-800/80 border border-gray-700 text-gray-400 text-xs flex items-center justify-center hover:text-red-400">
-                <i class="fa-solid fa-right-from-bracket"></i>
-            </button>
-        </div>
-    </header>
 
-    <!-- Crypto Live Ticker Header Bar -->
-    <div id="cryptoTicker" class="hidden bg-slate-950/80 border-b border-gray-800/60 py-1.5 overflow-hidden text-xs">
-        <div class="animate-ticker text-gray-300 font-mono">
-            <div class="flex gap-6 whitespace-nowrap px-4">
-                <span><i class="fa-brands fa-bitcoin text-amber-500"></i> BTC/USDT: <span class="text-emerald-400 font-bold" id="btcPrice">$67,420.50</span></span>
-                <span><i class="fa-brands fa-ethereum text-indigo-400"></i> ETH/USDT: <span class="text-emerald-400 font-bold" id="ethPrice">$3,540.20</span></span>
-                <span><i class="fa-solid fa-bolt text-cyan-400"></i> SOL/USDT: <span class="text-emerald-400 font-bold" id="solPrice">$184.10</span></span>
-                <span><i class="fa-solid fa-[#eb0029] text-red-500"></i> TRX/USDT: <span class="text-emerald-400 font-bold" id="trxPrice">$0.138</span></span>
+        <!-- Forms Container -->
+        <div class="bg-cardBg p-6 rounded-2xl border border-gray-800 shadow-xl">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700 mb-6">
+                <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 py-2 font-bold text-accentGold border-b-2 border-accentGold">تسجيل الدخول</button>
+                <button id="tabRegisterBtn" onclick="toggleAuthTab('register')" class="flex-1 py-2 font-bold text-gray-400">حساب جديد</button>
             </div>
-            <div class="flex gap-6 whitespace-nowrap px-4">
-                <span><i class="fa-brands fa-bitcoin text-amber-500"></i> BTC/USDT: <span class="text-emerald-400 font-bold">$67,420.50</span></span>
-                <span><i class="fa-brands fa-ethereum text-indigo-400"></i> ETH/USDT: <span class="text-emerald-400 font-bold">$3,540.20</span></span>
-                <span><i class="fa-solid fa-bolt text-cyan-400"></i> SOL/USDT: <span class="text-emerald-400 font-bold">$184.10</span></span>
-                <span><i class="fa-solid fa-[#eb0029] text-red-500"></i> TRX/USDT: <span class="text-emerald-400 font-bold">$0.138</span></span>
-            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اسم المستخدم / البريد</label>
+                    <input type="text" id="loginUsername" required class="w-full bg-darkBg border border-gray-700 rounded-xl p-3 text-sm focus:border-accentGold outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
+                    <input type="password" id="loginPassword" required class="w-full bg-darkBg border border-gray-700 rounded-xl p-3 text-sm focus:border-accentGold outline-none">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-accentGold to-yellow-600 text-darkBg font-bold py-3 rounded-xl shadow-lg mt-2">تسجيل الدخول</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اسم المستخدم</label>
+                    <input type="text" id="regUsername" required class="w-full bg-darkBg border border-gray-700 rounded-xl p-3 text-sm focus:border-accentGold outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
+                    <input type="password" id="regPassword" required class="w-full bg-darkBg border border-gray-700 rounded-xl p-3 text-sm focus:border-accentGold outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">رمز الدعوة (إجباري)</label>
+                    <input type="text" id="regInvite" required placeholder="أدخل رمز الدعوة" class="w-full bg-darkBg border border-gray-700 rounded-xl p-3 text-sm focus:border-accentGold outline-none">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-accentGold to-yellow-600 text-darkBg font-bold py-3 rounded-xl shadow-lg mt-2">إنشاء حساب جديد</button>
+            </form>
         </div>
     </div>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
+    <!-- Main Header -->
+    <header class="p-4 flex justify-between items-center border-b border-gray-800 bg-darkBg/90 backdrop-blur sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <button onclick="switchTab('admin')" class="w-8 h-8 rounded-full bg-red-600/20 text-red-500 flex items-center justify-center text-xs font-bold" title="Admin">
+                <i class="fa-solid fa-user-shield"></i>
+            </button>
+            <button onclick="switchTab('kyc')" id="kycBadge" class="px-2 py-1 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-500 flex items-center gap-1">
+                <i class="fa-solid fa-id-card"></i> <span id="kycStatusText">غير موثق</span>
+            </button>
+        </div>
+        <div class="text-center">
+            <div class="text-sm font-black tracking-wider text-accentGold">RTXF QUANT</div>
+            <div class="text-[9px] text-accentCyan">AI QUANTITATIVE V2.4</div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-accentGold text-darkBg flex items-center justify-center font-bold text-sm">
+            R
+        </div>
+    </header>
 
-        <!-- ========================================== -->
-        <!-- 1. AUTHENTICATION SECTION (LOGIN / REGISTER)-->
-        <!-- ========================================== -->
-        <section id="authSection" class="my-6">
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-cyan-500 shadow-2xl shadow-amber-500/20 mb-3">
-                    <span class="text-4xl font-black text-black tracking-tighter">RTXF</span>
+    <!-- Crypto Live Price Bar -->
+    <div class="bg-cardBg/50 px-4 py-1.5 flex justify-between items-center text-xs border-b border-gray-800/50">
+        <span class="text-gray-400 text-[10px]">BTC/USDT: <span class="text-accentGold font-mono">$67,107.12</span></span>
+        <span class="text-accentGreen text-[10px]"><i class="fa-solid fa-caret-up"></i> +537.16</span>
+    </div>
+
+    <!-- MAIN APP VIEWS -->
+    <main class="p-4 space-y-4">
+
+        <!-- VIEW 1: HOME -->
+        <div id="view-home" class="space-y-4">
+            <!-- Balance Card -->
+            <div class="gold-border-card rounded-2xl p-4 relative overflow-hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs text-gray-400">إجمالي الرصيد القابل للتداول</span>
+                    <span id="vipBadgeDisplay" class="bg-accentGold text-darkBg px-2 py-0.5 rounded-full text-[10px] font-bold">VIP 0 (غير مفعل)</span>
                 </div>
-                <h2 class="text-2xl font-black gold-text-gradient">منصة التحديد الكمي الذكي</h2>
-                <p class="text-xs text-gray-400 mt-1">تداول آلي وحسابات كمية احترافية عبر عقود AI</p>
-            </div>
-
-            <!-- Auth Box -->
-            <div class="glass-panel rounded-3xl p-6 shadow-2xl border border-gray-800">
-                <!-- Auth Tabs Switcher -->
-                <div class="flex bg-slate-900/90 rounded-xl p-1 mb-6 border border-gray-800">
-                    <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 py-2.5 text-xs font-bold rounded-lg transition-all bg-amber-500 text-black shadow-md">
-                        تسجيل الدخول
-                    </button>
-                    <button id="tabRegisterBtn" onclick="toggleAuthTab('register')" class="flex-1 py-2.5 text-xs font-bold text-gray-400 rounded-lg transition-all hover:text-white">
-                        حساب جديد
-                    </button>
+                <div class="text-3xl font-black text-white font-mono mb-4">
+                    <span id="userBalance">0.00</span> <span class="text-sm text-accentGold">USDT</span>
                 </div>
-
-                <!-- LOGIN FORM -->
-                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-800 text-center">
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1.5">اسم المستخدم / البريد الإلكتروني</label>
-                        <div class="relative">
-                            <span class="absolute right-3.5 top-3 text-gray-500"><i class="fa-solid fa-user"></i></span>
-                            <input type="text" id="loginUsername" required placeholder="أدخل اسم المستخدم" class="w-full bg-slate-900/90 border border-gray-800 rounded-xl py-2.5 pr-10 pl-3 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
+                        <div class="text-[10px] text-gray-400">أرباح اليوم</div>
+                        <div id="todayProfit" class="text-sm font-bold text-accentGreen font-mono">$0.00</div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1.5">كلمة المرور</label>
-                        <div class="relative">
-                            <span class="absolute right-3.5 top-3 text-gray-500"><i class="fa-solid fa-lock"></i></span>
-                            <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-900/90 border border-gray-800 rounded-xl py-2.5 pr-10 pl-3 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full btn-gold text-black font-extrabold py-3 rounded-xl transition duration-200 mt-2">
-                        تسجيل الدخول إلى RTXF
-                    </button>
-                </form>
-
-                <!-- REGISTER FORM -->
-                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1.5">اسم المستخدم</label>
-                        <div class="relative">
-                            <span class="absolute right-3.5 top-3 text-gray-500"><i class="fa-solid fa-user-plus"></i></span>
-                            <input type="text" id="regUsername" required placeholder="اختر اسم مستخدم" class="w-full bg-slate-900/90 border border-gray-800 rounded-xl py-2.5 pr-10 pl-3 text-sm text-white focus:outline-none focus:border-cyan-500">
-                        </div>
+                        <div class="text-[10px] text-gray-400">إجمالي الأرباح</div>
+                        <div id="totalProfit" class="text-sm font-bold text-accentCyan font-mono">$0.00</div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1.5">كلمة المرور</label>
-                        <div class="relative">
-                            <span class="absolute right-3.5 top-3 text-gray-500"><i class="fa-solid fa-key"></i></span>
-                            <input type="password" id="regPassword" required placeholder="أنشئ كلمة مرور" class="w-full bg-slate-900/90 border border-gray-800 rounded-xl py-2.5 pr-10 pl-3 text-sm text-white focus:outline-none focus:border-cyan-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-cyan-400 mb-1.5 flex justify-between">
-                            <span>كود الدعوة (مطلوب للإنضمام)</span>
-                            <span class="text-[10px] text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i> إجباري</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute right-3.5 top-3 text-cyan-500"><i class="fa-solid fa-ticket"></i></span>
-                            <input type="text" id="regInviteCode" required placeholder="أدخل كود الدعوة المكون من 6 أرقام" class="w-full bg-slate-900/90 border border-cyan-500/50 rounded-xl py-2.5 pr-10 pl-3 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono">
-                        </div>
-                    </div>
-
-                    <!-- Alert Notice No Free Trial -->
-                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-[11px] text-amber-300 flex items-start gap-2">
-                        <i class="fa-solid fa-shield-halved text-amber-400 text-sm mt-0.5"></i>
-                        <span>تنبيه: لا يوجد رصيد مجاني أو فترة تجريبية. تفعيل التحديد الكمي يتطلب الاشتراك في إحدى باقات VIP المدفوعة.</span>
-                    </div>
-
-                    <button type="submit" class="w-full btn-cyan text-black font-extrabold py-3 rounded-xl transition duration-200 mt-2">
-                        إنشاء حساب وتفعيل التحديد
-                    </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 2. HOME TAB (DASHBOARD) -->
-        <!-- ========================================== -->
-        <section id="homeTab" class="tab-content hidden space-y-4">
-            
-            <!-- Account Overview Banner -->
-            <div class="glass-panel-gold rounded-3xl p-5 relative overflow-hidden">
-                <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <span class="text-xs text-gray-400 font-bold">إجمالي الرصيد القابل للتداول</span>
-                        <div class="text-3xl font-black text-white mt-0.5 flex items-baseline gap-1 font-mono">
-                            <span id="dashBalance">0.00</span> <span class="text-sm font-bold text-amber-400">USDT</span>
-                        </div>
-                    </div>
-                    <span id="dashVipBadge" class="bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-xs px-3 py-1 rounded-full shadow-lg">
-                        VIP 0 (غير مفعل)
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-800/80 text-center">
-                    <div>
-                        <span class="text-[10px] text-gray-400">أرباح اليوم</span>
-                        <div class="text-xs font-bold text-emerald-400 font-mono mt-0.5" id="dashTodayProfit">$0.00</div>
-                    </div>
-                    <div class="border-x border-gray-800">
-                        <span class="text-[10px] text-gray-400">إجمالي الأرباح</span>
-                        <div class="text-xs font-bold text-cyan-400 font-mono mt-0.5" id="dashTotalProfit">$0.00</div>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-gray-400">عمولة الفريق</span>
-                        <div class="text-xs font-bold text-amber-400 font-mono mt-0.5" id="dashTeamCommission">$0.00</div>
+                        <div class="text-[10px] text-gray-400">عمولة الفريق</div>
+                        <div id="teamCommission" class="text-sm font-bold text-accentGold font-mono">$0.00</div>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Action Grid -->
-            <div class="grid grid-cols-4 gap-2 text-center">
-                <button onclick="switchTab('recharge')" class="glass-panel p-3 rounded-2xl hover:border-emerald-500/50 transition">
-                    <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mb-1">
-                        <i class="fa-solid fa-circle-arrow-down"></i>
+            <div class="grid grid-cols-4 gap-3 text-center">
+                <button onclick="switchTab('deposit')" class="bg-cardBg p-3 rounded-xl border border-gray-800 hover:border-accentGreen flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-accentGreen/10 text-accentGreen flex items-center justify-center text-lg mb-1">
+                        <i class="fa-solid fa-arrow-down-long"></i>
                     </div>
-                    <span class="text-[11px] font-bold block">إيداع</span>
+                    <span class="text-xs">إيداع</span>
                 </button>
-                <button onclick="switchTab('withdraw')" class="glass-panel p-3 rounded-2xl hover:border-red-500/50 transition">
-                    <div class="w-10 h-10 mx-auto rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg mb-1">
-                        <i class="fa-solid fa-circle-arrow-up"></i>
+                <button onclick="switchTab('withdraw')" class="bg-cardBg p-3 rounded-xl border border-gray-800 hover:border-accentRed flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-accentRed/10 text-accentRed flex items-center justify-center text-lg mb-1">
+                        <i class="fa-solid fa-arrow-up-long"></i>
                     </div>
-                    <span class="text-[11px] font-bold block">سحب</span>
+                    <span class="text-xs">سحب</span>
                 </button>
-                <button onclick="switchTab('quant')" class="glass-panel p-3 rounded-2xl hover:border-cyan-500/50 transition">
-                    <div class="w-10 h-10 mx-auto rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg mb-1">
+                <button onclick="switchTab('quant')" class="bg-cardBg p-3 rounded-xl border border-gray-800 hover:border-accentCyan flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-accentCyan/10 text-accentCyan flex items-center justify-center text-lg mb-1">
                         <i class="fa-solid fa-robot"></i>
                     </div>
-                    <span class="text-[11px] font-bold block">التحديد</span>
+                    <span class="text-xs">التحديد</span>
                 </button>
-                <button onclick="switchTab('team')" class="glass-panel p-3 rounded-2xl hover:border-amber-500/50 transition">
-                    <div class="w-10 h-10 mx-auto rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg mb-1">
+                <button onclick="switchTab('team')" class="bg-cardBg p-3 rounded-xl border border-gray-800 hover:border-accentGold flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-accentGold/10 text-accentGold flex items-center justify-center text-lg mb-1">
                         <i class="fa-solid fa-users"></i>
                     </div>
-                    <span class="text-[11px] font-bold block">الفريق</span>
+                    <span class="text-xs">الفريق</span>
                 </button>
             </div>
 
-            <!-- Interactive Profit Mini Chart -->
-            <div class="glass-panel rounded-3xl p-4">
+            <!-- Chart Section -->
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-line text-cyan-400"></i> مؤشر التحديد الكمي العائدي (7 أيام)
-                    </h3>
-                    <span class="text-[10px] bg-cyan-500/10 text-cyan-400 font-mono px-2 py-0.5 rounded-full border border-cyan-500/20">AI Quant Engine</span>
+                    <span class="text-xs font-bold text-gray-300">مؤشر التحديد الكمي العائدي (7 أيام)</span>
+                    <span class="text-[10px] bg-accentCyan/10 text-accentCyan px-2 py-0.5 rounded">AI Quant Engine</span>
                 </div>
-                <div class="h-36 w-full">
-                    <canvas id="profitChart"></canvas>
+                <div class="h-40">
+                    <canvas id="quantChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: QUANTIFICATION -->
+        <div id="view-quant" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 text-center">
+                <h2 class="text-base font-bold text-accentGold mb-1">مركز التحديد الكمي الذكي</h2>
+                <p class="text-xs text-gray-400 mb-4">قم بتفعيل العقد الكمي مرة واحدة كل 24 ساعة لجني الأرباح</p>
+                
+                <div class="relative w-40 h-40 mx-auto mb-4 flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-4 border-dashed border-accentCyan/30 animate-spin"></div>
+                    <button id="startQuantBtn" onclick="runQuantification()" class="w-32 h-32 rounded-full bg-gradient-to-tr from-accentGold via-yellow-500 to-accentCyan text-darkBg font-black text-sm flex flex-col items-center justify-center shadow-lg shadow-accentGold/20 active:scale-95 transition">
+                        <i class="fa-solid fa-power-off text-2xl mb-1"></i>
+                        <span>بدء التحديد</span>
+                    </button>
+                </div>
+
+                <div id="quantTimer" class="text-xs font-mono text-accentCyan hidden">
+                    الوقت المتبقي للمهمة القادمة: <span id="timerDisplay">24:00:00</span>
                 </div>
             </div>
 
-            <!-- Live Withdrawals / Quant Log Feed -->
-            <div class="glass-panel rounded-3xl p-4">
-                <h3 class="text-xs font-bold text-gray-300 mb-3 flex items-center justify-between">
-                    <span><i class="fa-solid fa-tower-broadcast text-amber-400 animate-pulse"></i> سجل عمليات الشبكة اللحظي</span>
-                    <span class="text-[10px] text-gray-500">تحديث مباشر</span>
-                </h3>
-                <div class="space-y-2.5 overflow-hidden h-36" id="liveFeedContainer">
-                    <!-- Feed items injected via JS -->
-                </div>
+            <!-- Execution Terminal -->
+            <div class="bg-darkBg p-3 rounded-xl border border-gray-800 font-mono text-[10px] space-y-1 text-gray-400 max-h-36 overflow-y-auto" id="quantLogs">
+                <div class="text-accentGreen">> النظام جاهز للعمل...</div>
+                <div>> يرجى اختيار الباقة لبدء التحديد التلقائي.</div>
             </div>
-        </section>
+        </div>
 
-        <!-- ========================================== -->
-        <!-- 3. QUANTIFICATION TAB (TASK ENGINE 24H) -->
-        <!-- ========================================== -->
-        <section id="quantTab" class="tab-content hidden space-y-4">
+        <!-- VIEW 3: VIP PACKAGES -->
+        <div id="view-vip" class="space-y-3 hidden">
+            <h2 class="text-sm font-bold text-gray-300 mb-2">باقات التحديد الكمي (VIP)</h2>
             
-            <div class="glass-panel-cyan rounded-3xl p-5 text-center relative overflow-hidden">
-                <span class="text-xs text-cyan-300 font-bold uppercase tracking-widest block mb-1">محرك العقود الكمية الذكية</span>
-                <h2 class="text-2xl font-black text-white">تفعيل المهمة اليومية (24H)</h2>
-                <p class="text-xs text-gray-400 mt-1 max-w-xs mx-auto">
-                    يتم تنفيذ صفقات التراجُح (Arbitrage) بين Binance و OKX عبر خوارزميات الذكاء الاصطناعي مرة واحدة كل 24 ساعة.
-                </p>
+            <!-- Package List -->
+            <div id="packageList" class="space-y-3">
+                <!-- Dynamic insertion via JS -->
+            </div>
+        </div>
 
-                <!-- Circle Status / Countdown Button -->
-                <div class="my-6 relative flex justify-center items-center">
-                    <div id="quantCircleBtn" onclick="runQuantificationTask()" class="w-44 h-44 rounded-full border-4 border-cyan-500/40 bg-slate-900/80 flex flex-col items-center justify-center cursor-pointer pulse-cyan hover:border-cyan-400 transition-all shadow-2xl relative">
-                        <i id="quantIcon" class="fa-solid fa-microchip text-4xl text-cyan-400 mb-2"></i>
-                        <span id="quantBtnText" class="text-sm font-black text-white">بدء التحديد الكمي</span>
-                        <span id="quantSubText" class="text-[10px] text-cyan-400 mt-1">انقر للتأكيد</span>
-                    </div>
+        <!-- VIEW 4: TEAM / REFERRAL -->
+        <div id="view-team" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 text-center">
+                <h2 class="text-sm font-bold text-accentGold mb-2">دعوة الأصدقاء وبناء الفريق</h2>
+                <p class="text-xs text-gray-400 mb-4">احصل على عمولات على 3 مستويات من أرباح الفريق</p>
+                
+                <div class="bg-darkBg p-3 rounded-xl border border-gray-800 flex justify-between items-center mb-3">
+                    <span class="text-xs text-gray-400">رمز الدعوة الخاص بك:</span>
+                    <span id="myInviteCode" class="font-mono font-bold text-accentGold text-sm">RTXF88</span>
                 </div>
 
-                <!-- 24 Hour Countdown Display (When Locked) -->
-                <div id="countdownBox" class="hidden bg-slate-950/90 border border-cyan-500/30 rounded-2xl p-3 font-mono">
-                    <span class="text-[11px] text-gray-400 block mb-1">المهمة التالية تفتح خلال:</span>
-                    <div class="text-2xl font-black text-cyan-400 tracking-wider" id="quantTimer">23:59:59</div>
-                </div>
+                <button onclick="copyInviteLink()" class="w-full bg-accentGold text-darkBg font-bold py-2.5 rounded-xl text-xs">نسخ رابط الدعوة</button>
             </div>
 
-            <!-- Connected Exchanges Visual Bar -->
-            <div class="glass-panel rounded-2xl p-3">
-                <div class="text-[11px] text-gray-400 font-bold mb-2">المنصات المرتبطة بالتحديد:</div>
-                <div class="flex justify-between items-center text-xs font-bold text-gray-300 px-2">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-[#f3ba2f] text-amber-400"></i> Binance</span>
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-cube text-white"></i> OKX</span>
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-simple text-amber-500"></i> Bybit</span>
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-globe text-cyan-400"></i> Gate.io</span>
+            <!-- Commission Rates -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-cardBg p-3 rounded-xl border border-gray-800">
+                    <div class="text-accentGold font-bold text-base">10%</div>
+                    <div class="text-[10px] text-gray-400">المستوى 1</div>
+                </div>
+                <div class="bg-cardBg p-3 rounded-xl border border-gray-800">
+                    <div class="text-accentCyan font-bold text-base">3%</div>
+                    <div class="text-[10px] text-gray-400">المستوى 2</div>
+                </div>
+                <div class="bg-cardBg p-3 rounded-xl border border-gray-800">
+                    <div class="text-accentGreen font-bold text-base">1%</div>
+                    <div class="text-[10px] text-gray-400">المستوى 3</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Processing Modal Loader -->
-            <div id="quantProcessingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center px-4">
-                <div class="glass-panel-cyan max-w-xs w-full rounded-3xl p-6 text-center space-y-4">
-                    <div class="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <h3 class="text-base font-extrabold text-white">جاري إبرام صفقات التحديد...</h3>
-                    <p class="text-xs text-cyan-300 font-mono" id="processingStep">جاري ربط عقد Smart Contract بالبورصة...</p>
-                    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-gray-800">
-                        <div id="processingProgressBar" class="bg-cyan-400 h-full w-0 transition-all duration-300"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 4. VIP PACKAGES / LEVELS TAB -->
-        <!-- ========================================== -->
-        <section id="vipTab" class="tab-content hidden space-y-4">
-            <div class="text-center mb-2">
-                <h2 class="text-xl font-black gold-text-gradient">مستويات باقات VIP</h2>
-                <p class="text-xs text-gray-400">ترقية باقتك تزيد من العائد اليومي ومبلغ التحديد الكمي</p>
-            </div>
-
-            <!-- VIP Card 1 -->
-            <div class="glass-panel rounded-3xl p-4 border hover:border-amber-500/50 transition">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-sm">V1</div>
-                        <h3 class="font-extrabold text-white text-sm">مستوى VIP 1</h3>
-                    </div>
-                    <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full border border-amber-500/20">تكلفة: $20 USDT</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-800 my-2">
-                    <div><span class="text-gray-400">العائد اليومي:</span> <span class="font-bold text-emerald-400 font-mono">2.5% ($0.50)</span></div>
-                    <div><span class="text-gray-400">مهمة كل:</span> <span class="font-bold text-white">24 ساعة</span></div>
-                </div>
-                <button onclick="upgradeVIP(1, 20)" class="w-full py-2.5 rounded-xl btn-gold text-black font-extrabold text-xs">
-                    اشترك الآن بـ $20 USDT
-                </button>
-            </div>
-
-            <!-- VIP Card 2 -->
-            <div class="glass-panel-gold rounded-3xl p-4 border border-amber-500/40">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500 text-black font-black flex items-center justify-center text-sm">V2</div>
-                        <h3 class="font-extrabold text-white text-sm">مستوى VIP 2 (الأكثر شعبية)</h3>
-                    </div>
-                    <span class="text-xs font-mono font-bold bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30">تكلفة: $100 USDT</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-800/60 my-2">
-                    <div><span class="text-gray-400">العائد اليومي:</span> <span class="font-bold text-emerald-400 font-mono">3.2% ($3.20)</span></div>
-                    <div><span class="text-gray-400">مهمة كل:</span> <span class="font-bold text-white">24 ساعة</span></div>
-                </div>
-                <button onclick="upgradeVIP(2, 100)" class="w-full py-2.5 rounded-xl btn-gold text-black font-extrabold text-xs">
-                    اشترك الآن بـ $100 USDT
-                </button>
-            </div>
-
-            <!-- VIP Card 3 -->
-            <div class="glass-panel rounded-3xl p-4 border hover:border-amber-500/50 transition">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-sm">V3</div>
-                        <h3 class="font-extrabold text-white text-sm">مستوى VIP 3</h3>
-                    </div>
-                    <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full border border-amber-500/20">تكلفة: $300 USDT</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-800 my-2">
-                    <div><span class="text-gray-400">العائد اليومي:</span> <span class="font-bold text-emerald-400 font-mono">4.0% ($12.00)</span></div>
-                    <div><span class="text-gray-400">مهمة كل:</span> <span class="font-bold text-white">24 ساعة</span></div>
-                </div>
-                <button onclick="upgradeVIP(3, 300)" class="w-full py-2.5 rounded-xl btn-gold text-black font-extrabold text-xs">
-                    اشترك الآن بـ $300 USDT
-                </button>
-            </div>
-
-            <!-- VIP Card 4 -->
-            <div class="glass-panel rounded-3xl p-4 border hover:border-amber-500/50 transition">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-sm">V4</div>
-                        <h3 class="font-extrabold text-white text-sm">مستوى VIP 4</h3>
-                    </div>
-                    <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full border border-amber-500/20">تكلفة: $800 USDT</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-800 my-2">
-                    <div><span class="text-gray-400">العائد اليومي:</span> <span class="font-bold text-emerald-400 font-mono">5.0% ($40.00)</span></div>
-                    <div><span class="text-gray-400">مهمة كل:</span> <span class="font-bold text-white">24 ساعة</span></div>
-                </div>
-                <button onclick="upgradeVIP(4, 800)" class="w-full py-2.5 rounded-xl btn-gold text-black font-extrabold text-xs">
-                    اشترك الآن بـ $800 USDT
-                </button>
-            </div>
-
-            <!-- VIP Card 5 -->
-            <div class="glass-panel rounded-3xl p-4 border hover:border-amber-500/50 transition">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-sm">V5</div>
-                        <h3 class="font-extrabold text-white text-sm">مستوى VIP 5 (كبار المستثمرين)</h3>
-                    </div>
-                    <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full border border-amber-500/20">تكلفة: $2,000 USDT</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-gray-800 my-2">
-                    <div><span class="text-gray-400">العائد اليومي:</span> <span class="font-bold text-emerald-400 font-mono">6.5% ($130.00)</span></div>
-                    <div><span class="text-gray-400">مهمة كل:</span> <span class="font-bold text-white">24 ساعة</span></div>
-                </div>
-                <button onclick="upgradeVIP(5, 2000)" class="w-full py-2.5 rounded-xl btn-gold text-black font-extrabold text-xs">
-                    اشترك الآن بـ $2,000 USDT
-                </button>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 5. RECHARGE / DEPOSIT TAB -->
-        <!-- ========================================== -->
-        <section id="rechargeTab" class="tab-content hidden space-y-4">
-            <div class="glass-panel rounded-3xl p-5 space-y-4">
-                <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-emerald-400"></i> شحن المحفظة (USDT TRC20)
-                </h2>
-                <p class="text-xs text-gray-400">قم بتحويل المبلغ المطلوب إلى عنوان المحفظة أدناه لتشغيل الباقة.</p>
-
-                <!-- QR Code Mockup -->
-                <div class="bg-white p-3 rounded-2xl w-40 h-40 mx-auto flex items-center justify-center shadow-lg">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TYx9aK2RTXFQuantNet38xLpK73qwM9" alt="QR Code Deposit" class="w-full h-full">
-                </div>
-
-                <!-- Wallet Address Box -->
+        <!-- VIEW 5: DEPOSIT (7 Methods) -->
+        <div id="view-deposit" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 space-y-3">
+                <h2 class="text-sm font-bold text-accentGold">إيداع رصيد جديد (7 طرق متوفرة)</h2>
+                
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1 font-bold">عنوان الإيداع (TRC20):</label>
-                    <div class="flex items-center bg-slate-900 border border-gray-800 rounded-xl p-2 font-mono text-xs">
-                        <input type="text" id="depositAddressInput" readonly value="TYx9aK2RTXFQuantNet38xLpK73qwM9" class="bg-transparent text-emerald-400 flex-1 outline-none">
-                        <button onclick="copyToClipboard('depositAddressInput')" class="bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg font-sans text-xs font-bold hover:bg-emerald-500/30">
-                            نسخ
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Submit TXID / Recharge Form -->
-                <form onsubmit="submitRecharge(event)" class="space-y-3 pt-2 border-t border-gray-800">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">المبلغ المودع ($ USDT)</label>
-                        <input type="number" id="depositAmount" min="20" required placeholder="أدخل المبلغ (مثال: 100)" class="w-full bg-slate-900 border border-gray-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">رقم المعاملة (TXID / Hash)</label>
-                        <input type="text" id="depositTxid" required placeholder="أدخل معرّف المعاملة للتأكيد" class="w-full bg-slate-900 border border-gray-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 text-xs">
-                        تأكيد طلب الإيداع
-                    </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 6. WITHDRAW TAB -->
-        <!-- ========================================== -->
-        <section id="withdrawTab" class="tab-content hidden space-y-4">
-            <div class="glass-panel rounded-3xl p-5 space-y-4">
-                <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-money-bill-transfer text-red-400"></i> سحب الأرباح (USDT)
-                </h2>
-
-                <div class="bg-slate-900/80 rounded-2xl p-3 border border-gray-800 flex justify-between items-center text-xs">
-                    <span class="text-gray-400">الرصيد المتاح للسحب:</span>
-                    <span class="font-bold text-emerald-400 text-sm font-mono" id="withdrawAvailable">0.00 USDT</span>
-                </div>
-
-                <form onsubmit="submitWithdrawal(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">عنوان محفظتك (USDT TRC20)</label>
-                        <input type="text" id="withdrawWallet" required placeholder="T..." class="w-full bg-slate-900 border border-gray-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-red-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">مبلغ السحب ($ USDT)</label>
-                        <input type="number" id="withdrawAmount" min="10" required placeholder="الحد الأدنى $10" class="w-full bg-slate-900 border border-gray-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-red-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">كلمة مرور الأمان / السحب</label>
-                        <input type="password" id="withdrawPin" required placeholder="أدخل كلمة مرور السحب" class="w-full bg-slate-900 border border-gray-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-red-500">
-                    </div>
-
-                    <div class="text-[11px] text-gray-400 space-y-1 bg-red-500/5 p-2.5 rounded-xl border border-red-500/20">
-                        <p><i class="fa-solid fa-circle-info text-red-400"></i> رسوم السحب: 1 USDT فقط.</p>
-                        <p><i class="fa-solid fa-clock text-red-400"></i> يستغرق معالجة السحب من 5 إلى 30 دقيقة.</p>
-                    </div>
-
-                    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-extrabold py-3 rounded-xl transition shadow-lg shadow-red-500/20 text-xs">
-                        تأكيد طلب السحب الان
-                    </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 7. TEAM & REFERRAL SYSTEM TAB -->
-        <!-- ========================================== -->
-        <section id="teamTab" class="tab-content hidden space-y-4">
-            <div class="text-center mb-2">
-                <h2 class="text-xl font-black cyan-text-gradient">دعوة الأصدقاء وبناء الفريق</h2>
-                <p class="text-xs text-gray-400">احصل على عمولات مجزية من أرباح أفراد فريقك بنظام 3 مستويات</p>
-            </div>
-
-            <!-- Copy Invite Info Panel -->
-            <div class="glass-panel-cyan rounded-3xl p-5 space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-cyan-300 mb-1">كود الدعوة الخاص بك:</label>
-                    <div class="flex items-center bg-slate-950/90 border border-cyan-500/30 rounded-xl p-2">
-                        <input type="text" id="userInviteCode" readonly value="839201" class="bg-transparent text-amber-400 font-mono font-bold text-base flex-1 outline-none text-center">
-                        <button onclick="copyToClipboard('userInviteCode')" class="btn-cyan text-black px-3 py-1.5 rounded-lg text-xs font-bold">
-                            نسخ الكود
-                        </button>
-                    </div>
+                    <label class="block text-xs text-gray-400 mb-1">اختر طريقة الإيداع</label>
+                    <select id="depositMethod" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                        <option value="USDT (TRC20)">USDT (TRC20)</option>
+                        <option value="USDT (BEP20)">USDT (BEP20)</option>
+                        <option value="Bitcoin (BTC)">Bitcoin (BTC)</option>
+                        <option value="Ethereum (ETH)">Ethereum (ETH)</option>
+                        <option value="Binance Pay">Binance Pay (ID)</option>
+                        <option value="Perfect Money">Perfect Money</option>
+                        <option value="Payeer">Payeer</option>
+                    </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-cyan-300 mb-1">رابط الدعوة المباشر:</label>
-                    <div class="flex items-center bg-slate-950/90 border border-cyan-500/30 rounded-xl p-2">
-                        <input type="text" id="userInviteLink" readonly value="https://rtxf-quant.net/reg?code=839201" class="bg-transparent text-gray-300 font-mono text-xs flex-1 outline-none">
-                        <button onclick="copyToClipboard('userInviteLink')" class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-500/30">
-                            نسخ الرابط
-                        </button>
-                    </div>
+                    <label class="block text-xs text-gray-400 mb-1">المبلغ المراد إيداعه ($)</label>
+                    <input type="number" id="depositAmount" placeholder="الحد الأدنى 10$" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none">
                 </div>
-            </div>
 
-            <!-- Commission Rates Tier Cards -->
-            <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="glass-panel p-3 rounded-2xl border border-amber-500/30">
-                    <span class="text-[10px] text-gray-400 block font-bold">المستوى 1</span>
-                    <span class="text-xl font-black text-amber-400 font-mono block my-0.5">10%</span>
-                    <span class="text-[9px] text-gray-400">دعوة مباشرة</span>
+                <div class="bg-darkBg p-3 rounded-xl border border-gray-800 text-center">
+                    <div class="text-[10px] text-gray-400 mb-1">عنوان المحفظة / المعرف:</div>
+                    <div class="font-mono text-xs text-accentCyan break-all">TXF99812hGkL01992837482910aK</div>
                 </div>
-                <div class="glass-panel p-3 rounded-2xl border border-cyan-500/30">
-                    <span class="text-[10px] text-gray-400 block font-bold">المستوى 2</span>
-                    <span class="text-xl font-black text-cyan-400 font-mono block my-0.5">3%</span>
-                    <span class="text-[9px] text-gray-400">دعوة ثانوية</span>
-                </div>
-                <div class="glass-panel p-3 rounded-2xl border border-indigo-500/30">
-                    <span class="text-[10px] text-gray-400 block font-bold">المستوى 3</span>
-                    <span class="text-xl font-black text-indigo-400 font-mono block my-0.5">1%</span>
-                    <span class="text-[9px] text-gray-400">دعوة غير مباشرة</span>
-                </div>
-            </div>
 
-            <!-- Team Stats Overview -->
-            <div class="glass-panel rounded-3xl p-4 space-y-3">
-                <h3 class="text-xs font-bold text-gray-200">إحصائيات الفريق الحالي</h3>
-                <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-slate-900/80 p-3 rounded-2xl border border-gray-800">
-                        <span class="text-[10px] text-gray-400 block">عدد أعضاء الفريق</span>
-                        <span class="text-lg font-extrabold text-white font-mono" id="teamCount">0 مستخدم</span>
-                    </div>
-                    <div class="bg-slate-900/80 p-3 rounded-2xl border border-gray-800">
-                        <span class="text-[10px] text-gray-400 block">أرباح الفريق الإجمالية</span>
-                        <span class="text-lg font-extrabold text-amber-400 font-mono" id="teamProfit">$0.00</span>
+                <button onclick="submitDeposit()" class="w-full bg-accentGreen text-darkBg font-bold py-3 rounded-xl text-xs">إرسال طلب الإيداع (مباشر دون تأكيد رقم المعاملة)</button>
+            </div>
+        </div>
+
+        <!-- VIEW 6: WITHDRAW -->
+        <div id="view-withdraw" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 space-y-3">
+                <h2 class="text-sm font-bold text-accentRed">سحب الأرباح</h2>
+                
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">طريقة السحب</label>
+                    <select id="withdrawMethod" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                        <option value="USDT (TRC20)">USDT (TRC20)</option>
+                        <option value="USDT (BEP20)">USDT (BEP20)</option>
+                        <option value="Binance Pay">Binance Pay</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">عنوان المحفظة / حساب المستقبل</label>
+                    <input type="text" id="withdrawAddress" placeholder="أدخل عنوان المحفظة" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">المبلغ المراد سحبه ($)</label>
+                    <input type="number" id="withdrawAmount" placeholder="الحد الأدنى 5$" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none">
+                </div>
+
+                <button onclick="submitWithdraw()" class="w-full bg-accentRed text-white font-bold py-3 rounded-xl text-xs">تأكيد طلب السحب</button>
+            </div>
+        </div>
+
+        <!-- VIEW 7: KYC VERIFICATION (إجباري) -->
+        <div id="view-kyc" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 space-y-3">
+                <h2 class="text-sm font-bold text-accentGold">توثيق الحساب (KYC) - إجباري</h2>
+                <p class="text-xs text-gray-400">لا يمكن إجراء أي عملية إيداع أو سحب أو تحديد كمي دون توثيق الحساب بالهوية الرسمية.</p>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اختر الدولة</label>
+                    <select id="kycCountry" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                        <option value="السعودية">المملكة العربية السعودية</option>
+                        <option value="الإمارات">الإمارات العربية المتحدة</option>
+                        <option value="مصر">جمهورية مصر العربية</option>
+                        <option value="الكويت">الكويت</option>
+                        <option value="الأردن">الأردن</option>
+                        <option value="العراق">العراق</option>
+                        <option value="أخرى">دولة أخرى</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">صورة الهوية / الجواز (الوجه الأمامي)</label>
+                    <input type="file" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2 text-xs text-gray-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">صورة الهوية / الجواز (الوجه الخلفي)</label>
+                    <input type="file" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2 text-xs text-gray-400">
+                </div>
+
+                <button onclick="submitKYC()" class="w-full bg-accentGold text-darkBg font-bold py-3 rounded-xl text-xs">إرسال التوثيق للمراجعة</button>
+            </div>
+        </div>
+
+        <!-- VIEW 8: HISTORY LOGS (سجل العمليات) -->
+        <div id="view-history" class="space-y-3 hidden">
+            <h2 class="text-sm font-bold text-gray-300 mb-2">سجل كافة العمليات والانشطة</h2>
+            <div id="logsContainer" class="space-y-2">
+                <!-- Dynamic Logs -->
+            </div>
+        </div>
+
+        <!-- VIEW 9: ADMIN PANEL -->
+        <div id="view-admin" class="space-y-4 hidden">
+            <div class="bg-cardBg p-4 rounded-2xl border border-red-900/50 space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                    <h2 class="text-sm font-bold text-red-500"><i class="fa-solid fa-user-shield"></i> لوحة تحكم الأدمن</h2>
+                    <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">إدارة كاملة</span>
+                </div>
+
+                <!-- Admin Action: Deposit Approval -->
+                <div class="space-y-2">
+                    <div class="text-xs font-bold text-gray-300">طلبات الإيداع/السحب والتفعيل:</div>
+                    <div id="adminRequestsList" class="space-y-2 text-xs">
+                        <!-- Dynamic list -->
                     </div>
                 </div>
+
+                <!-- Manual Balance Add -->
+                <div class="border-t border-gray-800 pt-3 space-y-2">
+                    <div class="text-xs font-bold text-gray-300">إضافة رصيد يدوي للمستخدم:</div>
+                    <input type="number" id="adminAddAmount" placeholder="المبلغ ($)" class="w-full bg-darkBg border border-gray-700 rounded-xl p-2 text-xs text-white">
+                    <button onclick="adminAddBalance()" class="w-full bg-accentGreen text-darkBg font-bold py-2 rounded-xl text-xs">إضافة الرصيد</button>
+                </div>
             </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- ========================================== -->
-    <!-- FOOTER BOTTOM NAVIGATION BAR -->
-    <!-- ========================================== -->
-    <nav id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto bg-[#0a0d14]/95 backdrop-blur-lg border-t border-gray-800 px-4 py-2 flex justify-between items-center">
-        <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-1 text-amber-400">
-            <i class="fa-solid fa-house text-lg"></i>
-            <span class="text-[10px] font-bold">الرئيسية</span>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-darkBg/95 backdrop-blur border-t border-gray-800 grid grid-cols-5 py-2 px-1 text-center text-xs z-40">
+        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center nav-active">
+            <i class="fa-solid fa-house text-base mb-1"></i>
+            <span class="text-[10px]">الرئيسية</span>
         </button>
-        <button onclick="switchTab('quant')" id="nav-quant" class="nav-btn flex flex-col items-center gap-1 text-gray-500 hover:text-cyan-400">
-            <i class="fa-solid fa-microchip text-lg"></i>
-            <span class="text-[10px] font-bold">التحديد</span>
+        <button onclick="switchTab('vip')" id="nav-vip" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-crown text-base mb-1"></i>
+            <span class="text-[10px]">الباقات</span>
         </button>
-        <button onclick="switchTab('vip')" id="nav-vip" class="nav-btn flex flex-col items-center gap-1 text-gray-500 hover:text-amber-400">
-            <i class="fa-solid fa-crown text-lg"></i>
-            <span class="text-[10px] font-bold">الباقات VIP</span>
+        <button onclick="switchTab('quant')" id="nav-quant" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-microchip text-base mb-1"></i>
+            <span class="text-[10px]">التحديد</span>
         </button>
-        <button onclick="switchTab('team')" id="nav-team" class="nav-btn flex flex-col items-center gap-1 text-gray-500 hover:text-cyan-400">
-            <i class="fa-solid fa-users text-lg"></i>
-            <span class="text-[10px] font-bold">الفريق</span>
+        <button onclick="switchTab('team')" id="nav-team" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-users text-base mb-1"></i>
+            <span class="text-[10px]">الفريق</span>
+        </button>
+        <button onclick="switchTab('history')" id="nav-history" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-list-check text-base mb-1"></i>
+            <span class="text-[10px]">السجل</span>
         </button>
     </nav>
 
-    <!-- NOTIFICATION TOAST -->
-    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 border border-amber-500/50 text-amber-300 text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 max-w-xs w-full">
-        <i class="fa-solid fa-circle-info text-base"></i>
-        <span id="toastMsg">إشعار جديد</span>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT STATE ENGINE & CORE LOGIC -->
-    <!-- ========================================== -->
+    <!-- App JavaScript Logic -->
     <script>
-        // User State Blueprint
+        // Data Structures & State
+        const packages = [
+            { level: 1, name: "VIP 1", price: 10, returnRate: 4 },
+            { level: 2, name: "VIP 2", price: 50, returnRate: 6 },
+            { level: 3, name: "VIP 3", price: 150, returnRate: 9 },
+            { level: 4, name: "VIP 4", price: 400, returnRate: 13 },
+            { level: 5, name: "VIP 5", price: 1000, returnRate: 20 }
+        ];
+
         let state = {
-            currentUser: null,
+            isLoggedIn: false,
+            username: '',
             balance: 0.00,
             vipLevel: 0,
-            todayProfit: 0.00,
-            totalProfit: 0.00,
-            teamCommission: 0.00,
+            kycStatus: 'unverified', // unverified, pending, verified
             lastQuantTime: 0,
-            inviteCode: ''
+            todayProfit: 0,
+            totalProfit: 0,
+            logs: [],
+            pendingRequests: []
         };
 
-        let quantCountdownTimer = null;
-
-        // Initialization On Load
+        // Initialize App
         window.onload = function() {
-            checkAuth();
+            renderPackages();
             initChart();
-            startLiveFeed();
-            setInterval(updateCryptoPrices, 3000);
+            loadState();
+            updateUI();
         };
 
-        // Custom Toast Message
-        function showToast(msg, duration = 3000) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, duration);
+        function saveState() {
+            localStorage.setItem('rtxf_state', JSON.stringify(state));
         }
 
-        // Toggle Auth Login / Register Tabs
-        function toggleAuthTab(type) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const tabLoginBtn = document.getElementById('tabLoginBtn');
-            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+        function loadState() {
+            const saved = localStorage.getItem('rtxf_state');
+            if (saved) {
+                state = JSON.parse(saved);
+                if (state.isLoggedIn) {
+                    document.getElementById('authView').classList.add('hidden');
+                }
+            }
+        }
 
-            if (type === 'login') {
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-                tabLoginBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all bg-amber-500 text-black shadow-md";
-                tabRegisterBtn.className = "flex-1 py-2.5 text-xs font-bold text-gray-400 rounded-lg transition-all hover:text-white";
+        // Render Packages
+        function renderPackages() {
+            const container = document.getElementById('packageList');
+            container.innerHTML = packages.map(pkg => `
+                <div class="bg-cardBg p-4 rounded-2xl border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-accentGold text-sm">${pkg.name}</span>
+                            <span class="text-[10px] bg-accentGold/10 text-accentGold px-2 py-0.5 rounded">عائد يومي ${pkg.returnRate}%</span>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1">سعر الباقة: <span class="text-white font-bold font-mono">$${pkg.price}</span></div>
+                    </div>
+                    <button onclick="buyPackage(${pkg.level})" class="bg-gradient-to-r from-accentGold to-yellow-600 text-darkBg font-bold px-4 py-2 rounded-xl text-xs">
+                        اشتراك
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Authentication Handlers
+        function toggleAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-bold text-accentGold border-b-2 border-accentGold";
+                document.getElementById('tabRegisterBtn').className = "flex-1 py-2 font-bold text-gray-400";
             } else {
-                loginForm.classList.add('hidden');
-                registerForm.classList.remove('hidden');
-                tabRegisterBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all bg-cyan-500 text-black shadow-md";
-                tabLoginBtn.className = "flex-1 py-2.5 text-xs font-bold text-gray-400 rounded-lg transition-all hover:text-white";
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('tabRegisterBtn').className = "flex-1 py-2 font-bold text-accentGold border-b-2 border-accentGold";
+                document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-bold text-gray-400";
             }
-        }
-
-        // Auth Logic
-        function handleRegister(e) {
-            e.preventDefault();
-            const username = document.getElementById('regUsername').value.trim();
-            const inviteCode = document.getElementById('regInviteCode').value.trim();
-
-            if (!inviteCode) {
-                showToast("عذراً، كود الدعوة مطلوب للتسجيل في المنصة!");
-                return;
-            }
-
-            // Save New User without Free Balance
-            const userState = {
-                currentUser: username,
-                balance: 0.00,
-                vipLevel: 0,
-                todayProfit: 0.00,
-                totalProfit: 0.00,
-                teamCommission: 0.00,
-                lastQuantTime: 0,
-                inviteCode: Math.floor(100000 + Math.random() * 900000).toString()
-            };
-
-            localStorage.setItem('rtxf_user_' + username, JSON.stringify(userState));
-            localStorage.setItem('rtxf_active_user', username);
-            
-            showToast("تم إنشاء الحساب بنجاح! نرجو شحن الرصيد لتفعيل باقة VIP.");
-            checkAuth();
         }
 
         function handleLogin(e) {
             e.preventDefault();
-            const username = document.getElementById('loginUsername').value.trim();
-            const savedData = localStorage.getItem('rtxf_user_' + username);
-
-            if (savedData) {
-                localStorage.setItem('rtxf_active_user', username);
-                showToast("تم تسجيل الدخول بنجاح!");
-                checkAuth();
-            } else {
-                // Mock auto-create for demo login
-                const userState = {
-                    currentUser: username,
-                    balance: 0.00,
-                    vipLevel: 0,
-                    todayProfit: 0.00,
-                    totalProfit: 0.00,
-                    teamCommission: 0.00,
-                    lastQuantTime: 0,
-                    inviteCode: Math.floor(100000 + Math.random() * 900000).toString()
-                };
-                localStorage.setItem('rtxf_user_' + username, JSON.stringify(userState));
-                localStorage.setItem('rtxf_active_user', username);
-                showToast("مرحباً بك مجدداً في RTXF!");
-                checkAuth();
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('rtxf_active_user');
-            location.reload();
-        }
-
-        function checkAuth() {
-            const activeUser = localStorage.getItem('rtxf_active_user');
-            const authSection = document.getElementById('authSection');
-            const mainHeader = document.getElementById('mainHeader');
-            const cryptoTicker = document.getElementById('cryptoTicker');
-            const bottomNav = document.getElementById('bottomNav');
-
-            if (activeUser) {
-                const userData = JSON.parse(localStorage.getItem('rtxf_user_' + activeUser));
-                state = userData;
-
-                authSection.classList.add('hidden');
-                mainHeader.classList.remove('hidden');
-                cryptoTicker.classList.remove('hidden');
-                bottomNav.classList.remove('hidden');
-
-                updateUI();
-                switchTab('home');
-                checkQuantTimer();
-            } else {
-                authSection.classList.remove('hidden');
-                mainHeader.classList.add('hidden');
-                cryptoTicker.classList.add('hidden');
-                bottomNav.classList.add('hidden');
-            }
-        }
-
-        function saveState() {
-            if (state.currentUser) {
-                localStorage.setItem('rtxf_user_' + state.currentUser, JSON.stringify(state));
-            }
+            state.isLoggedIn = true;
+            state.username = document.getElementById('loginUsername').value;
+            addLog("تسجيل دخول ناجح");
+            saveState();
+            document.getElementById('authView').classList.add('hidden');
             updateUI();
         }
 
-        function updateUI() {
-            document.getElementById('dashBalance').innerText = state.balance.toFixed(2);
-            document.getElementById('dashTodayProfit').innerText = '$' + state.todayProfit.toFixed(2);
-            document.getElementById('dashTotalProfit').innerText = '$' + state.totalProfit.toFixed(2);
-            document.getElementById('dashTeamCommission').innerText = '$' + state.teamCommission.toFixed(2);
-            document.getElementById('withdrawAvailable').innerText = state.balance.toFixed(2) + ' USDT';
-
-            // VIP Badge
-            const badge = document.getElementById('dashVipBadge');
-            badge.innerText = `VIP ${state.vipLevel} ${state.vipLevel > 0 ? '(مفعل)' : '(غير مفعل)'}`;
-
-            // User Invites
-            document.getElementById('userInviteCode').value = state.inviteCode || '839201';
-            document.getElementById('userInviteLink').value = `https://rtxf-quant.net/reg?code=${state.inviteCode || '839201'}`;
+        function handleRegister(e) {
+            e.preventDefault();
+            const invite = document.getElementById('regInvite').value;
+            if (!invite) {
+                alert("رمز الدعوة مطلوب إجبارياً!");
+                return;
+            }
+            state.isLoggedIn = true;
+            state.username = document.getElementById('regUsername').value;
+            addLog("حساب جديد ينضم بواسطة رمز دعوة: " + invite);
+            saveState();
+            document.getElementById('authView').classList.add('hidden');
+            updateUI();
         }
 
         // Tab Switcher
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        function switchTab(viewName) {
+            const views = ['home', 'quant', 'vip', 'team', 'deposit', 'withdraw', 'kyc', 'history', 'admin'];
+            views.forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if (el) el.classList.add('hidden');
+                const nav = document.getElementById('nav-' + v);
+                if (nav) nav.className = "flex flex-col items-center text-gray-500";
+            });
+
+            const activeView = document.getElementById('view-' + viewName);
+            if (activeView) activeView.classList.remove('hidden');
             
-            const target = document.getElementById(tabId + 'Tab');
-            if (target) target.classList.remove('hidden');
-
-            // Bottom Nav styling
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex flex-col items-center gap-1 text-gray-500");
-            const activeNavBtn = document.getElementById('nav-' + tabId);
-            if (activeNavBtn) activeNavBtn.className = "nav-btn flex flex-col items-center gap-1 text-amber-400";
+            const activeNav = document.getElementById('nav-' + viewName);
+            if (activeNav) activeNav.className = "flex flex-col items-center nav-active";
         }
 
-        // 24H Quantification Logic
-        function checkQuantTimer() {
-            const now = Date.now();
-            const elapsed = now - state.lastQuantTime;
-            const twentyFourHours = 24 * 60 * 60 * 1000;
-
-            const circleBtn = document.getElementById('quantCircleBtn');
-            const countdownBox = document.getElementById('countdownBox');
-
-            if (elapsed < twentyFourHours && state.lastQuantTime !== 0) {
-                circleBtn.classList.add('opacity-50', 'pointer-events-none');
-                circleBtn.classList.remove('pulse-cyan');
-                document.getElementById('quantBtnText').innerText = "تم التحديد اليوم";
-                document.getElementById('quantSubText').innerText = "انتظر المؤقت التنازلي";
-                countdownBox.classList.remove('hidden');
-
-                if (quantCountdownTimer) clearInterval(quantCountdownTimer);
-
-                quantCountdownTimer = setInterval(() => {
-                    const remaining = twentyFourHours - (Date.now() - state.lastQuantTime);
-                    if (remaining <= 0) {
-                        clearInterval(quantCountdownTimer);
-                        checkQuantTimer();
-                    } else {
-                        const hrs = Math.floor(remaining / (1000 * 60 * 60)).toString().padStart(2, '0');
-                        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-                        const secs = Math.floor((remaining % (1000 * 60)) / 1000).toString().padStart(2, '0');
-                        document.getElementById('quantTimer').innerText = `${hrs}:${mins}:${secs}`;
-                    }
-                }, 1000);
-            } else {
-                circleBtn.classList.remove('opacity-50', 'pointer-events-none');
-                circleBtn.classList.add('pulse-cyan');
-                document.getElementById('quantBtnText').innerText = "بدء التحديد الكمي";
-                document.getElementById('quantSubText').innerText = "انقر للتأكيد";
-                countdownBox.classList.add('hidden');
+        // KYC Verification Guard
+        function checkKYC() {
+            if (state.kycStatus !== 'verified') {
+                alert("عفواً! يجب توثيق الحساب (KYC) بالهوية أولاً لتتمكن من القيام بهذه العملية.");
+                switchTab('kyc');
+                return false;
             }
+            return true;
         }
 
-        function runQuantificationTask() {
+        function submitKYC() {
+            state.kycStatus = 'pending';
+            addLog("تم إرسال مستندات توثيق الهوية KYC للمراجعة.");
+            state.pendingRequests.push({ type: 'KYC', user: state.username });
+            saveState();
+            updateUI();
+            alert("تم إرسال الطلب بنجاح وهو قيد المراجعة الآن من قبل Admin.");
+        }
+
+        // Quantification Logic (24H Lock)
+        function runQuantification() {
+            if (!checkKYC()) return;
             if (state.vipLevel === 0) {
-                showToast("عذراً! يجب الاشتراك في باقة VIP أولاً لبدء التحديد.");
+                alert("يرجى الاشتراك في إحدى الباقات (VIP) أولاً لتفعيل التحديد الكمي.");
                 switchTab('vip');
                 return;
             }
 
-            const modal = document.getElementById('quantProcessingModal');
-            const stepText = document.getElementById('processingStep');
-            const progressBar = document.getElementById('processingProgressBar');
-            
-            modal.classList.remove('hidden');
+            const now = Date.now();
+            if (now - state.lastQuantTime < 24 * 60 * 60 * 1000) {
+                alert("يمكنك تشغيل التحديد الكمي مرة واحدة كل 24 ساعة فقط!");
+                return;
+            }
 
-            const steps = [
-                "جاري ربط عقد Smart Contract بالبورصة...",
-                "تحليل الفروقات السعرية عبر خوارزمية AI...",
-                "إجراء صفقات Arbitrage على منصة Binance...",
-                "تأكيد الأرباح وإيداع العائد في محفظتك..."
-            ];
+            const pkg = packages.find(p => p.level === state.vipLevel);
+            const profit = (pkg.price * (pkg.returnRate / 100));
 
-            let index = 0;
-            const stepInterval = setInterval(() => {
-                index++;
-                if (index < steps.length) {
-                    stepText.innerText = steps[index];
-                    progressBar.style.width = ((index + 1) * 25) + '%';
-                } else {
-                    clearInterval(stepInterval);
-                    modal.classList.add('hidden');
-                    progressBar.style.width = '0%';
+            state.lastQuantTime = now;
+            state.balance += profit;
+            state.todayProfit = profit;
+            state.totalProfit += profit;
 
-                    // Calculate Yield according to VIP level
-                    let yieldAmt = 0;
-                    if (state.vipLevel === 1) yieldAmt = 0.50;
-                    else if (state.vipLevel === 2) yieldAmt = 3.20;
-                    else if (state.vipLevel === 3) yieldAmt = 12.00;
-                    else if (state.vipLevel === 4) yieldAmt = 40.00;
-                    else if (state.vipLevel === 5) yieldAmt = 130.00;
-
-                    state.balance += yieldAmt;
-                    state.todayProfit += yieldAmt;
-                    state.totalProfit += yieldAmt;
-                    state.lastQuantTime = Date.now();
-
-                    saveState();
-                    checkQuantTimer();
-                    showToast(`تمت عملية التحديد الكمي بنجاح! تمت إضافة +$${yieldAmt.toFixed(2)} USDT`);
-                }
-            }, 1200);
+            addLog(`تم تنفيذ التحديد الكمي لـ ${pkg.name} وتلقي أرباح بقيمة $${profit.toFixed(2)}`);
+            saveState();
+            updateUI();
+            alert(`تم التحديد بنجاح! الأرباح المكتسبة اليوم: $${profit.toFixed(2)}`);
         }
 
-        // VIP Upgrade Logic
-        function upgradeVIP(level, cost) {
-            if (state.vipLevel >= level) {
-                showToast(`أنت مشترك بالفعل في مستوى VIP ${state.vipLevel} أو أعلى!`);
+        // Deposit Request (Direct without tx id)
+        function submitDeposit() {
+            if (!checkKYC()) return;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const method = document.getElementById('depositMethod').value;
+            if (!amount || amount < 10) {
+                alert("يرجى إدخال مبلغ صحيح (الحد الأدنى 10$)");
                 return;
             }
 
-            if (state.balance < cost) {
-                showToast(`رصيدك غير كافٍ ($${state.balance.toFixed(2)}). يرجى شحن $${cost} USDT أولاً.`);
-                switchTab('recharge');
+            state.pendingRequests.push({ type: 'DEPOSIT', amount, method, user: state.username });
+            addLog(`تم تقديم طلب إيداع بمبلغ $${amount} عبر ${method}`);
+            saveState();
+            updateUI();
+            alert("تم إرسال طلب الإيداع بنجاح. سيتم إضافة الرصيد بعد المراجعة.");
+        }
+
+        // Withdraw
+        function submitWithdraw() {
+            if (!checkKYC()) return;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (!amount || amount > state.balance) {
+                alert("الرصيد غير كافٍ للسحب!");
                 return;
             }
 
-            state.balance -= cost;
+            state.balance -= amount;
+            addLog(`تم طلب سحب بمبلغ $${amount}`);
+            saveState();
+            updateUI();
+            alert("تم إرسال طلب السحب بنجاح!");
+        }
+
+        // Buy Package
+        function buyPackage(level) {
+            if (!checkKYC()) return;
+            const pkg = packages.find(p => p.level === level);
+            if (state.balance < pkg.price) {
+                alert(`رصيدك غير كافٍ لتفعيل ${pkg.name}. يتطلب $${pkg.price}`);
+                switchTab('deposit');
+                return;
+            }
+
+            state.balance -= pkg.price;
             state.vipLevel = level;
+            addLog(`تم شراء وتفعيل باقة ${pkg.name}`);
             saveState();
-            showToast(`مبروك! تم تفعيل مستوى VIP ${level} بنجاح.`);
+            updateUI();
+            alert(`مبروك! تم تفعيل ${pkg.name} بنجاح.`);
         }
 
-        // Recharge Submission
-        function submitRecharge(e) {
-            e.preventDefault();
-            const amt = parseFloat(document.getElementById('depositAmount').value);
+        // Copy Invite Link
+        function copyInviteLink() {
+            navigator.clipboard.writeText("https://rtxf-quant.ai/register?ref=" + state.username);
+            alert("تم نسخ رابط الدعوة الخاص بك!");
+        }
+
+        // Add Log Entry
+        function addLog(msg) {
+            const time = new Date().toLocaleTimeString('ar-EG');
+            state.logs.unshift({ time, msg });
+        }
+
+        // UI Refresh
+        function updateUI() {
+            document.getElementById('userBalance').innerText = state.balance.toFixed(2);
+            document.getElementById('todayProfit').innerText = '$' + state.todayProfit.toFixed(2);
+            document.getElementById('totalProfit').innerText = '$' + state.totalProfit.toFixed(2);
+            document.getElementById('vipBadgeDisplay').innerText = `VIP ${state.vipLevel} ${state.vipLevel > 0 ? '(مفعل)' : '(غير مفعل)'}`;
             
-            // Simulating instant deposit for demo
-            state.balance += amt;
-            saveState();
-
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('depositTxid').value = '';
-
-            showToast(`تم تأكيد الإيداع وإضافة +$${amt.toFixed(2)} USDT لمُحفظتك بنجاح!`);
-            switchTab('home');
-        }
-
-        // Withdrawal Submission
-        function submitWithdrawal(e) {
-            e.preventDefault();
-            const amt = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (amt < 10) {
-                showToast("الحد الأدنى للسحب هو $10 USDT!");
-                return;
+            // KYC Badge Update
+            const badge = document.getElementById('kycStatusText');
+            if (state.kycStatus === 'verified') {
+                badge.innerText = 'موثق';
+                document.getElementById('kycBadge').className = "px-2 py-1 rounded text-[10px] font-bold bg-green-500/20 text-green-500 flex items-center gap-1";
+            } else if (state.kycStatus === 'pending') {
+                badge.innerText = 'قيد المراجعة';
+                document.getElementById('kycBadge').className = "px-2 py-1 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-500 flex items-center gap-1";
             }
 
-            if (amt > state.balance) {
-                showToast("رصيدك الحالي غير كافٍ لإجراء طلب السحب!");
-                return;
+            // Render Logs
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = state.logs.map(l => `
+                <div class="bg-cardBg p-2.5 rounded-xl border border-gray-800 flex justify-between items-center text-xs">
+                    <span class="text-gray-300">${l.msg}</span>
+                    <span class="text-[10px] text-gray-500 font-mono">${l.time}</span>
+                </div>
+            `).join('');
+
+            // Admin List Render
+            const adminList = document.getElementById('adminRequestsList');
+            adminList.innerHTML = state.pendingRequests.map((r, idx) => `
+                <div class="bg-darkBg p-2 rounded flex justify-between items-center border border-gray-800">
+                    <span>${r.type} - $${r.amount || 0} (${r.user})</span>
+                    <button onclick="approveAdminReq(${idx})" class="bg-accentGreen text-darkBg px-2 py-1 rounded font-bold text-[10px]">قبول</button>
+                </div>
+            `).join('') || '<div class="text-gray-500">لا توجد طلبات معلقة</div>';
+        }
+
+        // Admin Action
+        function approveAdminReq(idx) {
+            const req = state.pendingRequests[idx];
+            if (req.type === 'DEPOSIT') {
+                state.balance += req.amount;
+                addLog(`تم إعتماد الإيداع بقيمة $${req.amount} من قبل Admin`);
+            } else if (req.type === 'KYC') {
+                state.kycStatus = 'verified';
+                addLog("تم قبول توثيق KYC من قبل Admin");
             }
-
-            state.balance -= amt;
+            state.pendingRequests.splice(idx, 1);
             saveState();
-
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawWallet').value = '';
-            document.getElementById('withdrawPin').value = '';
-
-            showToast("تم إرسال طلب السحب بنجاح! جاري المعالجة عبر شبكة TRC20.");
-            switchTab('home');
+            updateUI();
         }
 
-        // Utility: Copy to Clipboard
-        function copyToClipboard(inputId) {
-            const copyText = document.getElementById(inputId);
-            copyText.select();
-            document.execCommand('copy');
-            showToast("تم النسخ إلى الحافظة بنجاح!");
+        function adminAddBalance() {
+            const amt = parseFloat(document.getElementById('adminAddAmount').value);
+            if (amt) {
+                state.balance += amt;
+                addLog(`تمت إضافة $${amt} يدويًا من لوحة Admin`);
+                saveState();
+                updateUI();
+                alert("تم إضافة الرصيد بنجاح!");
+            }
         }
 
-        // Live Crypto Price Updates Simulation
-        function updateCryptoPrices() {
-            const btc = (67000 + Math.random() * 800).toFixed(2);
-            const eth = (3500 + Math.random() * 50).toFixed(2);
-            const sol = (180 + Math.random() * 5).toFixed(2);
-            
-            const btcEl = document.getElementById('btcPrice');
-            if (btcEl) btcEl.innerText = `$${btc}`;
-            const ethEl = document.getElementById('ethPrice');
-            if (ethEl) ethEl.innerText = `$${eth}`;
-            const solEl = document.getElementById('solPrice');
-            if (solEl) solEl.innerText = `$${sol}`;
-        }
-
-        // Chart.js Setup
+        // Initialize Chart
         function initChart() {
-            const ctx = document.getElementById('profitChart').getContext('2d');
+            const ctx = document.getElementById('quantChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'اليوم'],
                     datasets: [{
-                        label: 'عائد التحديد ($)',
+                        label: 'العائد الكمي %',
                         data: [12, 19, 25, 32, 48, 55, 70],
-                        borderColor: '#06b6d4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                        borderWidth: 2,
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
                         fill: true,
                         tension: 0.4
                     }]
@@ -1048,42 +731,12 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                        x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
                     }
                 }
             });
         }
-
-        // Live Feed Simulation
-        function startLiveFeed() {
-            const feedContainer = document.getElementById('liveFeedContainer');
-            const users = ['User_892', 'Alex_Quant', 'CryptoKing', 'VIP_Trader', 'Tariq_77', 'Sami_USDT'];
-            const actions = [
-                { type: 'سحب أرباح', color: 'text-red-400' },
-                { type: 'تحديد كمي', color: 'text-emerald-400' }
-            ];
-
-            setInterval(() => {
-                const user = users[Math.floor(Math.random() * users.length)];
-                const action = actions[Math.floor(Math.random() * actions.length)];
-                const amount = (15 + Math.random() * 200).toFixed(2);
-
-                const item = document.createElement('div');
-                item.className = 'flex justify-between items-center text-[11px] bg-slate-900/60 p-2 rounded-xl border border-gray-800/80 animate-fade-in';
-                item.innerHTML = `
-                    <span class="text-gray-300 font-mono"><i class="fa-solid fa-user-circle text-gray-500"></i> ${user}</span>
-                    <span class="${action.color} font-bold">${action.type}</span>
-                    <span class="text-white font-mono font-bold">+$${amount} USDT</span>
-                `;
-
-                feedContainer.prepend(item);
-                if (feedContainer.children.length > 4) {
-                    feedContainer.removeChild(feedContainer.lastChild);
-                }
-            }, 3500);
-        }
     </script>
 </body>
 </html>
-```
